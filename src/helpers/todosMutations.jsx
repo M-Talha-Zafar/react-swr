@@ -1,0 +1,51 @@
+import { addTodo, updateTodo, deleteTodo } from "../api/todosApi";
+
+export const addMutation = async (newTodo, todos) => {
+  const added = await addTodo(newTodo);
+  return [...todos, added].sort((a, b) => b.id - a.id);
+};
+
+export const addTodoOptions = (newTodo, todos) => {
+  return {
+    optimisticData: [...todos, newTodo].sort((a, b) => b.id - a.id),
+    rollbackOnError: true,
+    populateCache: true,
+    revalidate: false,
+  };
+};
+
+export const updateMutation = async (updatedTodo, todos) => {
+  const updated = await updateTodo(updatedTodo);
+  return todos
+    .map((todo) => (todo.id === updated.id ? updated : todo))
+    .sort((a, b) => b.id - a.id);
+};
+
+export const updateTodoOptions = (updatedTodo, todos) => {
+  return {
+    optimisticData: todos
+      .map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo))
+      .sort((a, b) => b.id - a.id),
+    rollbackOnError: true,
+    populateCache: true,
+    revalidate: false,
+  };
+};
+
+export const deleteMutation = async (id, todos) => {
+  const deleted = await deleteTodo({ id });
+  return todos
+    .filter((todo) => todo.id !== deleted.id)
+    .sort((a, b) => b.id - a.id);
+};
+
+export const deleteTodoOptions = (id, todos) => {
+  return {
+    optimisticData: todos
+      .filter((todo) => todo.id !== id)
+      .sort((a, b) => b.id - a.id),
+    rollbackOnError: true,
+    populateCache: true,
+    revalidate: false,
+  };
+};
